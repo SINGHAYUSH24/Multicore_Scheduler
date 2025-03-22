@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Priority Allocation - Gantt Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #121212; color: yellow; font-family: Arial, sans-serif; }
+        .container { width: 90%; margin: auto; text-align: center; }
+        input, button { margin: 10px; padding: 10px; }
+        .task-list, .preemption-log { text-align: left; margin-top: 20px; }
+        canvas { background: white; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Priority Allocation - Gantt Chart</h1>
+        <label>Priority: <input type="number" id="priority"></label>
+        <label>Execution Time (sec): <input type="number" id="executionTime"></label>
+        <label>Arrival Time (sec): <input type="number" id="arrivalTime"></label>
+        <button onclick="addTask()">Add Task</button>
+        <button onclick="startExecution()">Start Execution</button>
+        <button onclick="clearTasks()">Clear</button>
+        <div class="task-list" id="taskList"></div>
+        <h2>Execution Log</h2>
+        <pre id="log"></pre>
+        <h2>Preemption Log</h2>
+        <pre id="preemptionLog"></pre>
+        <h2>Gantt Chart</h2>
+        <canvas id="ganttChart" width="1000" height="100"></canvas>
+    </div>
+
+    <script>
+        let tasks = [];
+        let cores = Array(4).fill(null);
+        let executionLog = [];
+        let preemptionLog = [];
+        let ganttData = [];
+        let taskColors = new Map();
+
+        function getRandomColor(taskId) {
+            if (!taskColors.has(taskId)) {
+                taskColors.set(taskId, `hsl(${Math.random() * 360}, 100%, 50%)`);
+            }
+            return taskColors.get(taskId);
+        }
+
+        function addTask() {
+            let priority = parseInt(document.getElementById("priority").value);
+            let executionTime = parseInt(document.getElementById("executionTime").value);
+            let arrivalTime = parseInt(document.getElementById("arrivalTime").value);
+            if (isNaN(priority) || isNaN(executionTime) || isNaN(arrivalTime) || executionTime <= 0) {
+                alert("Please enter valid priority, execution time, and arrival time.");
+                return;
+            }
+            let taskId = tasks.length + 1;
+            let task = { id: taskId, priority, executionTime, arrivalTime, remainingTime: executionTime };
+            tasks.push(task);
+            tasks.sort((a, b) => a.arrivalTime - b.arrivalTime || a.priority - b.priority);
+            displayTasks();
+        }
+
+        function displayTasks() {
+            let taskListDiv = document.getElementById("taskList");
+            taskListDiv.innerHTML = "<h2>Tasks</h2>";
+            tasks.forEach(task => {
+                taskListDiv.innerHTML += `Task ${task.id}: Priority ${task.priority}, Execution Time ${task.executionTime} sec, Arrival: ${task.arrivalTime} sec<br>`;
+            });
+        }
+    </script>
+</body>
+</html>
