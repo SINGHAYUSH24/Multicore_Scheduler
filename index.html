@@ -37,15 +37,6 @@
         let executionLog = [];
         let preemptionLog = [];
         let ganttData = [];
-        let taskColors = new Map();
-
-        function getRandomColor(taskId) {
-            if (!taskColors.has(taskId)) {
-                taskColors.set(taskId, `hsl(${Math.random() * 360}, 100%, 50%)`);
-            }
-            return taskColors.get(taskId);
-        }
-
         function addTask() {
             let priority = parseInt(document.getElementById("priority").value);
             let executionTime = parseInt(document.getElementById("executionTime").value);
