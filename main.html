@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Priority Allocation - Gantt Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #121212; color: yellow; font-family: Arial, sans-serif; }
+        .container { width: 90%; margin: auto; text-align: center; }
+        input, button { margin: 10px; padding: 10px; }
+        .task-list, .preemption-log { text-align: left; margin-top: 20px; }
+        canvas { background: white; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Priority Allocation - Gantt Chart</h1>
+        <label>Priority: <input type="number" id="priority"></label>
+        <label>Execution Time (sec): <input type="number" id="executionTime"></label>
+        <label>Arrival Time (sec): <input type="number" id="arrivalTime"></label>
+        <button onclick="addTask()">Add Task</button>
+        <button onclick="startExecution()">Start Execution</button>
+        <button onclick="clearTasks()">Clear</button>
+        <span class="task-list" id="taskList"></span>
+        <h2>Execution Log</h2>
+        <span id="log"></span>
+        <h2>Preemption Log</h2>
+        <span id="preemptionLog"></span>
+        <h2>Gantt Chart</h2>
+        <canvas id="ganttChart" width="1000" height="100"></canvas>
+    </div>
+
+    <script>
+        let tasks = [];
+        let cores = Array(4).fill(null);
+        let executionLog = [];
+        let preemptionLog = [];
+        let ganttData = [];
+        
+        function addTask() {
+            let priority = parseInt(document.getElementById("priority").value);
+            let executionTime = parseInt(document.getElementById("executionTime").value);
+            let arrivalTime = parseInt(document.getElementById("arrivalTime").value);
+            if (isNaN(priority) || isNaN(executionTime) || isNaN(arrivalTime) || executionTime <= 0) {
+                alert("Please enter valid priority, execution time, and arrival time.");
+                return;
+            }
+            let taskId = tasks.length + 1;
+            let task = { id: taskId, priority, executionTime, arrivalTime, remainingTime: executionTime };
+            tasks.push(task);
+            tasks.sort((a, b) => a.arrivalTime - b.arrivalTime || a.priority - b.priority);
+            displayTasks();
+        }
+
+        function displayTasks() {
+            let taskListDiv = document.getElementById("taskList");
+            taskListDiv.innerHTML = "<h2>Tasks</h2>";
+            tasks.forEach(task => {
+                taskListDiv.innerHTML += `Task ${task.id}: Priority ${task.priority}, Execution Time ${task.executionTime} sec, Arrival: ${task.arrivalTime} sec<br>`;
+            });
+        }
+        function startExecution() {
+    let time = 0;
+    let interval = setInterval(() => {
+        let arrivedTasks = tasks.filter(t => t.arrivalTime <= time && t.remainingTime > 0);
+        arrivedTasks.sort((a, b) => a.priority - b.priority); // Lower value = higher priority
+
+        // Check for available cores or preemption
+        arrivedTasks.forEach(task => {
+            let alreadyAssigned = cores.some(coreTask => coreTask && coreTask.id === task.id);
+            if (alreadyAssigned) return; // Skip if task is already running in a core
+
+            let freeCoreIndex = cores.findIndex(core => core === null);
+            if (freeCoreIndex !== -1) {
+                // Assign task to free core
+                cores[freeCoreIndex] = task;
+                executionLog.push(`Task ${task.id} assigned to Core ${freeCoreIndex + 1} at ${time} sec`);
+            } else {
+                // Preemption check: Find the lowest priority task running
+                let lowestPriorityIndex = -1;
+                let lowestPriority = -1;
+
+                for (let i = 0; i < cores.length; i++) {
+                    if (cores[i] && (lowestPriorityIndex === -1 || cores[i].priority > lowestPriority)) {
+                        lowestPriority = cores[i].priority;
+                        lowestPriorityIndex = i;
+                    }
+                }
+
+                if (lowestPriorityIndex !== -1 && cores[lowestPriorityIndex].priority > task.priority) {
+                    // Preempt the lower-priority task
+                    let preemptedTask = cores[lowestPriorityIndex];
+                    cores[lowestPriorityIndex] = task;
+                    executionLog.push(`Task ${task.id} preempted Task ${preemptedTask.id} on Core ${lowestPriorityIndex + 1} at ${time} sec`);
+                    preemptionLog.push(`Task ${preemptedTask.id} preempted by Task ${task.id} at ${time} sec`);
+                }
+            }
+        });
+
+        // Process running tasks
+        let activeCores = 0;
+        for (let i = 0; i < cores.length; i++) {
+            if (cores[i]) {
+                cores[i].remainingTime--;
+                ganttData.push({ core: i + 1, task: cores[i].id, time });
+                activeCores++;
+
+                if (cores[i].remainingTime === 0) {
+                    executionLog.push(`Task ${cores[i].id} completed on Core ${i + 1} at ${time+1} sec`);
+                    cores[i] = null; // Free the core
+                }
+            }
+        }
+
+        time++;
+        updateLogs();
+
+        // Stop when all tasks are completed
+        if (tasks.every(t => t.remainingTime <= 0) && activeCores === 0) {
+            clearInterval(interval);
+            drawGanttChart();
+        }
+    }, 1000);
+}
+
+        function updateLogs() {
+            document.getElementById("log").innerText = executionLog.join("\n");
+            document.getElementById("preemptionLog").innerText = preemptionLog.join("\n");
+        }
+
+        function drawGanttChart() {
+            let ctx = document.getElementById("ganttChart").getContext("2d");
+            let labels = [...new Set(ganttData.map(d => d.time))];
+            let datasets = [];
+            for (let i = 1; i <= 4; i++) {
+                datasets.push({
+                    label: `Core ${i}`,
+                    data: ganttData.filter(d => d.core === i).map(d => ({ x: d.time, y: d.task })),
+                    borderColor: `hsl(${i * 90}, 70%, 50%)`,
+                    borderWidth: 2,
+                    fill: false
+                });
+            }
+            new Chart(ctx, {
+                type: "line",
+                data: { labels, datasets },
+                options: { scales: { x: { beginAtZero: true } } }
+            });
+        }
+        function clearTasks() {
+    tasks = [];
+    cores = Array(4).fill(null);
+    executionLog = [];
+    preemptionLog = [];
+    ganttData = [];
+    
+    document.getElementById("taskList").innerHTML = "";
+    document.getElementById("log").innerText = "";
+    document.getElementById("preemptionLog").innerText = "";
+    
+    // Clear and redraw an empty Gantt chart
+    let ctx = document.getElementById("ganttChart").getContext("2d");
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+    alert("All tasks and logs cleared!");
+}
+
+    </script>
+</body>
+</html>
