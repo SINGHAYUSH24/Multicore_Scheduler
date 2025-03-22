@@ -64,20 +64,19 @@
     let time = 0;
     let interval = setInterval(() => {
         let arrivedTasks = tasks.filter(t => t.arrivalTime <= time && t.remainingTime > 0);
-        arrivedTasks.sort((a, b) => a.priority - b.priority); // Lower value = higher priority
-
-        // Check for available cores or preemption
+        arrivedTasks.sort((a, b) => a.priority - b.priority); 
+        
         arrivedTasks.forEach(task => {
             let alreadyAssigned = cores.some(coreTask => coreTask && coreTask.id === task.id);
-            if (alreadyAssigned) return; // Skip if task is already running in a core
+            if (alreadyAssigned) return; 
 
             let freeCoreIndex = cores.findIndex(core => core === null);
             if (freeCoreIndex !== -1) {
-                // Assign task to free core
+                
                 cores[freeCoreIndex] = task;
                 executionLog.push(`Task ${task.id} assigned to Core ${freeCoreIndex + 1} at ${time} sec`);
             } else {
-                // Preemption check: Find the lowest priority task running
+                
                 let lowestPriorityIndex = -1;
                 let lowestPriority = -1;
 
@@ -89,7 +88,7 @@
                 }
 
                 if (lowestPriorityIndex !== -1 && cores[lowestPriorityIndex].priority > task.priority) {
-                    // Preempt the lower-priority task
+                    
                     let preemptedTask = cores[lowestPriorityIndex];
                     cores[lowestPriorityIndex] = task;
                     executionLog.push(`Task ${task.id} preempted Task ${preemptedTask.id} on Core ${lowestPriorityIndex + 1} at ${time} sec`);
@@ -97,8 +96,6 @@
                 }
             }
         });
-
-        // Process running tasks
         let activeCores = 0;
         for (let i = 0; i < cores.length; i++) {
             if (cores[i]) {
@@ -108,7 +105,7 @@
 
                 if (cores[i].remainingTime === 0) {
                     executionLog.push(`Task ${cores[i].id} completed on Core ${i + 1} at ${time+1} sec`);
-                    cores[i] = null; // Free the core
+                    cores[i] = null; 
                 }
             }
         }
@@ -116,7 +113,7 @@
         time++;
         updateLogs();
 
-        // Stop when all tasks are completed
+       
         if (tasks.every(t => t.remainingTime <= 0) && activeCores === 0) {
             clearInterval(interval);
             drawGanttChart();
@@ -159,7 +156,6 @@
     document.getElementById("log").innerText = "";
     document.getElementById("preemptionLog").innerText = "";
     
-    // Clear and redraw an empty Gantt chart
     let ctx = document.getElementById("ganttChart").getContext("2d");
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
