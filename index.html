@@ -3,62 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Priority Allocation - Gantt Chart</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #121212; color: yellow; font-family: Arial, sans-serif; }
-        .container { width: 90%; margin: auto; text-align: center; }
-        input, button { margin: 10px; padding: 10px; }
-        .task-list, .preemption-log { text-align: left; margin-top: 20px; }
-        canvas { background: white; margin-top: 20px; }
-    </style>
+    <title>Dynamic Priority Scheduler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Dynamic Priority Allocation - Gantt Chart</h1>
-        <label>Priority: <input type="number" id="priority"></label>
-        <label>Execution Time (sec): <input type="number" id="executionTime"></label>
-        <label>Arrival Time (sec): <input type="number" id="arrivalTime"></label>
-        <button onclick="addTask()">Add Task</button>
-        <button onclick="startExecution()">Start Execution</button>
-        <button onclick="clearTasks()">Clear</button>
-        <div class="task-list" id="taskList"></div>
-        <h2>Execution Log</h2>
-        <pre id="log"></pre>
-        <h2>Preemption Log</h2>
-        <pre id="preemptionLog"></pre>
-        <h2>Gantt Chart</h2>
-        <canvas id="ganttChart" width="1000" height="100"></canvas>
-    </div>
+<body class="bg-gray-900 text-yellow-400 font-sans">
 
-    <script>
-        let tasks = [];
-        let cores = Array(4).fill(null);
-        let executionLog = [];
-        let preemptionLog = [];
-        let ganttData = [];
-        function addTask() {
-            let priority = parseInt(document.getElementById("priority").value);
-            let executionTime = parseInt(document.getElementById("executionTime").value);
-            let arrivalTime = parseInt(document.getElementById("arrivalTime").value);
-            if (isNaN(priority) || isNaN(executionTime) || isNaN(arrivalTime) || executionTime <= 0) {
-                alert("Please enter valid priority, execution time, and arrival time.");
-                return;
-            }
-            let taskId = tasks.length + 1;
-            let task = { id: taskId, priority, executionTime, arrivalTime, remainingTime: executionTime };
-            tasks.push(task);
-            tasks.sort((a, b) => a.arrivalTime - b.arrivalTime || a.priority - b.priority);
-            displayTasks();
-        }
+    <nav class="bg-gray-800 fixed w-full top-0 left-0 shadow-lg p-4">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-yellow-300">Dynamic Priority Scheduler for Multi-Core Systems</h1>
+        </div>
+        <div class="flex justify-center space-x-12 mt-2">
+            <a href="#about" class="text-yellow-300 hover:text-yellow-500">What It Simulates</a>
+            <a href="#how-it-works" class="text-yellow-300 hover:text-yellow-500">How It Works</a>
+            <a href="main.html" class="text-yellow-900 bg-yellow-400 px-4 py-2 rounded-lg font-bold hover:bg-yellow-500">Start Simulation</a>
+        </div>
+    </nav>
 
-        function displayTasks() {
-            let taskListDiv = document.getElementById("taskList");
-            taskListDiv.innerHTML = "<h2>Tasks</h2>";
-            tasks.forEach(task => {
-                taskListDiv.innerHTML += `Task ${task.id}: Priority ${task.priority}, Execution Time ${task.executionTime} sec, Arrival: ${task.arrivalTime} sec<br>`;
-            });
-        }
-    </script>
+    <section id="about" class="h-screen flex flex-col justify-center items-center text-center p-8">
+        <h2 class="text-4xl font-bold mb-6">What Does This Simulation Do?</h2>
+        <p class="max-w-3xl text-lg leading-relaxed">
+            This Dynamic Priority Scheduler simulates task allocation in multi-core systems.  
+            It efficiently assigns tasks to 4 CPU cores based on priority and arrival time, ensuring optimal execution.
+        </p>
+        <ul class="mt-6 text-lg space-y-3 text-left list-disc list-inside">
+            <li>Dynamically assigns tasks to available CPU cores.</li>
+            <li>Preempts lower-priority tasks when necessary.</li>
+            <li>Visualizes execution using a Gantt Chart.</li>
+            <li>Handles real-time task arrivals and core reassignment.</li>
+        </ul>
+        
+        <a href="#how-it-works" class="mt-8 inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-6 rounded-lg text-lg shadow-lg hover:bg-yellow-500 transition">
+            Learn More ↓
+        </a>
+    </section>
+    <section id="how-it-works" class="h-screen flex flex-col justify-center items-center text-center p-8 bg-gray-800 text-yellow-300">
+        <h2 class="text-4xl font-bold mb-6">How Does It Work?</h2>
+        <p class="max-w-3xl text-lg leading-relaxed">
+            This simulation dynamically schedules tasks based on real-time execution states.
+        </p>
+
+        <div class="mt-6 max-w-3xl text-left text-lg space-y-4">
+            <p><strong>🔹 Step 1: Task Arrival & Assignment</strong> – Tasks arrive and are assigned to available CPU cores.</p>
+            <p><strong>🔹 Step 2: Preemption</strong> – If a higher-priority task arrives, it replaces a lower-priority task in a core.</p>
+            <p><strong>🔹 Step 3: Execution & Completion</strong> – Each task runs until completion or is preempted by a higher-priority task.</p>
+            <p><strong>🔹 Step 4: Real-Time Updates</strong> – The scheduler continuously updates assignments for better CPU utilization.</p>
+        </div>
+
+        <a href="main.html" class="mt-8 inline-block bg-yellow-400 text-gray-900 font-bold py-3 px-6 rounded-lg text-lg shadow-lg hover:bg-yellow-500 transition">
+            Start Simulation 🚀
+        </a>
+    </section>
+
+<footer class="bg-gray-800 text-yellow-300 text-center py-2 fixed bottom-0 w-full">
+    Dynamic Priority Scheduler © 2025
+</footer>
+
 </body>
 </html>
