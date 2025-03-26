@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Priority Allocation - MultiCore Systems</title>
+    <style>
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>      
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-yellow-400 font-sans">
+    <div class="container mx-auto p-6 text-center">
+        <h1 class="text-3xl font-bold mb-6">Dynamic Priority Allocation For MultiCore System</h1>
+
+        <div class="grid md:grid-cols-3 gap-4 bg-gray-800 p-6 rounded-lg shadow-lg">
+            <input type="number" id="priority" placeholder="Priority" class="w-full p-2 bg-gray-700 text-white rounded">
+            <input type="number" id="executionTime" placeholder="Execution Time (sec)" class="w-full p-2 bg-gray-700 text-white rounded">
+            <input type="number" id="arrivalTime" placeholder="Arrival Time (sec)" class="w-full p-2 bg-gray-700 text-white rounded">
+        </div>
+
+        <div class="mt-4 flex justify-center space-x-4">
+            <button onclick="addTask()" class="bg-green-600 px-4 py-2 rounded hover:bg-green-500">Add Task</button>
+            <button onclick="startExecution()" class="bg-blue-600 px-4 py-2 rounded hover:bg-blue-500">Start Execution</button>
+            <button onclick="clearTasks()" class="bg-red-600 px-4 py-2 rounded hover:bg-red-500">Clear</button>
+        </div>
+        
+        <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold">Task List</h2>
+            <div id="taskList" class="text-white"></div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-4 mt-6">
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold">Execution Log</h2>
+                <pre id="log" class="text-white"></pre>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold">Preemption Log</h2>
+                <pre id="preemptionLog" class="text-white"></pre>
+            </div>            
+        </div>
+        <div class="flex justify-center py-5">
+            <div class="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold text-center w-full">Schedule Table</h2>
+                <pre id="scheduleLog" class="text-white text-center"></pre>
+            </div>
+        </div>
+
+        <div class="mt-6 bg-gray-800 p-4 rounded-lg shadow-lg">
+            <h2 class="text-xl font-bold">Gantt Chart</h2>
+            <canvas id="ganttChart" class="bg-white"></canvas>
+        </div>
+        <footer class="mt-6 text-lg text-yellow-400 font-bold">
+            Dynamic Process Scheduler @2025
+        </footer>
+    </div>
+    
+    <script src="/JavaScript Files/TaskManager.js"></script>
+    <script src="/JavaScript Files/Scheduler.js"></script>
+    <script src="/JavaScript Files/Gantt.js"></script>
+</body>
+</html>
