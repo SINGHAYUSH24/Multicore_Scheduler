@@ -1,5 +1,5 @@
 
-function drawGanttChart() {
+function drawLineChart() {
     let ctx = document.getElementById("ganttChart").getContext("2d");
     let labels = [...new Set(ganttData.map(d => d.time))];
     let datasets = [];

@@ -66,7 +66,7 @@ function startExecution() {
 
         if (tasks.every(t => t.remainingTime <= 0) && activeCores === 0) {
             clearInterval(interval);
-            drawGanttChart();
+            drawLineChart();
         }
     }, 1000);
 }
